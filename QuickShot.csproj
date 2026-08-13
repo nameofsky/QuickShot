@@ -1,0 +1,80 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <PropertyGroup>
+    <AssemblyName>QuickShot</AssemblyName>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <OutputType>WinExe</OutputType>
+    <UseWPF>True</UseWPF>
+    <UseWindowsForms>True</UseWindowsForms>
+    <UseSystemDrawing>True</UseSystemDrawing>
+    <TargetFramework>net8.0-windows10.0.22000.0</TargetFramework>
+    <PlatformTarget>x64</PlatformTarget>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SelfContained>true</SelfContained>
+    <PublishSingleFile>false</PublishSingleFile>
+    <PublishTrimmed>false</PublishTrimmed>
+    <PublishReadyToRun>false</PublishReadyToRun>
+    <DebugType>none</DebugType>
+    <DefaultItemExcludes>$(DefaultItemExcludes);obj\**</DefaultItemExcludes>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>12.0</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <CsWinRTEnabled>true</CsWinRTEnabled>
+    <CsWinRTWindowsMetadata>10.0.22621.0</CsWinRTWindowsMetadata>
+    <CsWinRTExcludes>Unused</CsWinRTExcludes>
+    <CsWinRTIncludes>Windows</CsWinRTIncludes>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>app.ico</ApplicationIcon>
+    <RootNamespace />
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="videorecordingwindow.baml" />
+    <None Remove="captureoverlay.baml" />
+    <None Remove="mainwindow.baml" />
+    <None Remove="appdialog.baml" />
+    <None Remove="regionselectionoverlay.baml" />
+    <None Remove="renamedialog.baml" />
+    <None Remove="app.baml" />
+    <None Remove="QuickShot.g.resources" />
+    <EmbeddedResource Include="QuickShot.g.resources" LogicalName="QuickShot.g.resources" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.1.6" />
+    <CsWinRTInputs Include="C:\Program Files (x86)\Windows Kits\10\UnionMetadata\10.0.22621.0\Windows.winmd" />
+    <PackageReference Include="Sdcb.PaddleOCR" Version="3.3.1" />
+    <PackageReference Include="Sdcb.PaddleOCR.Models.Local" Version="3.3.1" />
+    <PackageReference Include="Sdcb.PaddleOCR.Models.LocalV5" Version="3.3.1" />
+    <PackageReference Include="Sdcb.PaddleInference.Runtime.Win64.Mkl" Version="3.3.1.70" />
+    <PackageReference Include="OpenCvSharp4.Runtime.Win" Version="4.11.0.20250507" />
+    <PackageReference Include="Tesseract" Version="5.2.0" />
+    <Reference Include="ScreenRecorderLib">
+      <HintPath>third-party\ScreenRecorderLib.dll</HintPath>
+    </Reference>
+    <Reference Include="NAudio.Wasapi">
+      <HintPath>third-party\NAudio.Wasapi.dll</HintPath>
+    </Reference>
+    <Reference Include="NAudio.Core">
+      <HintPath>third-party\NAudio.Core.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.Drawing.Common">
+      <HintPath>third-party\System.Drawing.Common.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="tessdata\*.traineddata" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="Always" />
+
+    <Content Include="THIRD-PARTY-NOTICES.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="Always" />
+    <Content Include="app.ico" Link="app-icon.ico" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="Always" />
+  </ItemGroup>
+  <Target Name="ValidatePublishConfiguration" BeforeTargets="Publish">
+    <Error Condition="'$(RuntimeIdentifier)' != 'win-x64'" Text="QuickShot v41 must be published for win-x64." />
+    <Error Condition="'$(SelfContained)' != 'true'" Text="QuickShot v41 must be published as self-contained." />
+    <Error Condition="'$(PublishSingleFile)' != 'false'" Text="QuickShot v41 must use a multi-file publish because it loads native OCR dependencies." />
+  </Target>
+  <Target Name="CleanPublishDirectory" AfterTargets="Publish">
+    <Delete Files="$(PublishDir)ScreenRecorderLib.pdb;$(PublishDir)ScreenRecorderLib.xml" />
+  </Target>
+</Project>

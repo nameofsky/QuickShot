@@ -1,0 +1,19 @@
+using System.Diagnostics;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Runtime.Versioning;
+using System.Windows.Resources;
+
+[assembly: AssemblyAssociatedContentFile("app-icon.ico")]
+[assembly: AssemblyAssociatedContentFile("third-party-notices.txt")]
+[assembly: AssemblyAssociatedContentFile("%e6%9f%a0%e6%aa%ac_1.mp4")]
+[assembly: AssemblyAssociatedContentFile("%e8%a7%86%e9%a2%91%e5%bd%95%e5%88%b6%e5%8a%9f%e8%83%bd%e8%ae%be%e8%ae%a1%e8%af%b4%e6%98%8e.md")]
+[assembly: AssemblyCompany("QuickShot")]
+[assembly: AssemblyConfiguration("Release")]
+[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: AssemblyInformationalVersion("1.0.0")]
+[assembly: AssemblyProduct("QuickShot")]
+[assembly: AssemblyTitle("QuickShot")]
+[assembly: TargetPlatform("Windows7.0")]
+[assembly: SupportedOSPlatform("Windows7.0")]
+[assembly: AssemblyVersion("1.0.0.0")]
