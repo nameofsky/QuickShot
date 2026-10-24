@@ -458,7 +458,7 @@ public class MainWindow : Window, IComponentConnector, IStyleConnector
 
 		_backgroundChooseButton = new System.Windows.Controls.Button
 		{
-			Content = "选择文件",
+			Content = Localization.Text("选择文件"),
 			Style = SettingsNav.Style,
 			Width = 112,
 			Height = 38,
@@ -529,8 +529,8 @@ public class MainWindow : Window, IComponentConnector, IStyleConnector
 	{
 		using OpenFileDialog dialog = new OpenFileDialog
 		{
-			Title = "选择自定义背景",
-			Filter = "图片和视频|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.tif;*.tiff;*.mp4;*.wmv;*.avi;*.mov|图片|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.tif;*.tiff|视频|*.mp4;*.wmv;*.avi;*.mov",
+			Title = Localization.Text("选择自定义背景"),
+			Filter = Localization.Text("图片和视频|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.tif;*.tiff;*.mp4;*.wmv;*.avi;*.mov|图片|*.png;*.jpg;*.jpeg;*.bmp;*.gif;*.tif;*.tiff|视频|*.mp4;*.wmv;*.avi;*.mov"),
 			CheckFileExists = true,
 			Multiselect = false
 		};
@@ -560,7 +560,7 @@ public class MainWindow : Window, IComponentConnector, IStyleConnector
 		}
 		catch (Exception ex)
 		{
-			System.Windows.MessageBox.Show("无法设置自定义背景：" + ex.Message, "QuickShot", MessageBoxButton.OK, MessageBoxImage.Error);
+			System.Windows.MessageBox.Show(Localization.Text("无法设置自定义背景：" + ex.Message), "QuickShot", MessageBoxButton.OK, MessageBoxImage.Error);
 		}
 	}
 
@@ -598,7 +598,7 @@ public class MainWindow : Window, IComponentConnector, IStyleConnector
 
 	private string BackgroundDisplayName()
 	{
-		return string.IsNullOrWhiteSpace(_settings.BackgroundPath) ? "当前：未选择" : "当前：" + Path.GetFileName(_settings.BackgroundPath);
+		return Localization.Text(string.IsNullOrWhiteSpace(_settings.BackgroundPath) ? "当前：未选择" : "当前：" + Path.GetFileName(_settings.BackgroundPath));
 	}
 
 	private void ApplyBackgroundSettings()
@@ -898,7 +898,7 @@ public class MainWindow : Window, IComponentConnector, IStyleConnector
 			_gifStopShortcutHint?.SetResourceReference(TextBlock.ForegroundProperty, "MutedBrush");
 			if (_gifStopShortcutHint != null)
 			{
-				_gifStopShortcutHint.Text = "已恢复默认热键";
+				_gifStopShortcutHint.Text = Localization.Text("已恢复默认热键");
 			}
 			SettingsStore.Save(_settings);
 			e.Handled = true;
@@ -930,7 +930,7 @@ public class MainWindow : Window, IComponentConnector, IStyleConnector
 			_gifStopShortcutHint?.SetResourceReference(TextBlock.ForegroundProperty, "MutedBrush");
 			if (_gifStopShortcutHint != null)
 			{
-				_gifStopShortcutHint.Text = "快捷键至少需要 Ctrl、Shift 或 Alt（Tab 不能作为修饰键）";
+				_gifStopShortcutHint.Text = Localization.Text("快捷键至少需要 Ctrl、Shift 或 Alt（Tab 不能作为修饰键）");
 			}
 		}
 		else
@@ -941,7 +941,7 @@ public class MainWindow : Window, IComponentConnector, IStyleConnector
 			_gifStopShortcutBox.Text = combo;
 			if (_gifStopShortcutHint != null)
 			{
-				_gifStopShortcutHint.Text = $"已设置为 {combo}";
+				_gifStopShortcutHint.Text = Localization.Text($"已设置为 {combo}");
 			}
 			SettingsStore.Save(_settings);
 		}
@@ -1854,9 +1854,9 @@ public class MainWindow : Window, IComponentConnector, IStyleConnector
 		{
 			return;
 		}
-		string title = (video ? "删除视频" : "删除截图");
-		string message = "确定删除“" + Path.GetFileName(path) + "”吗？此操作无法撤销。";
-		if (!AppDialog.Confirm(this, title, message, "删除", destructive: true))
+		string title = Localization.Text(video ? "删除视频" : "删除截图");
+		string message = Localization.Text("确定删除“" + Path.GetFileName(path) + "”吗？此操作无法撤销。");
+		if (!AppDialog.Confirm(this, title, message, Localization.Text("删除"), destructive: true))
 		{
 			return;
 		}
@@ -1874,7 +1874,7 @@ public class MainWindow : Window, IComponentConnector, IStyleConnector
 		}
 		catch (Exception ex)
 		{
-			AppDialog appDialog = new AppDialog("删除失败", ex.Message, "知道了");
+			AppDialog appDialog = new AppDialog(Localization.Text("删除失败"), ex.Message, Localization.Text("知道了"));
 			appDialog.Owner = this;
 			appDialog.ShowDialog();
 		}
