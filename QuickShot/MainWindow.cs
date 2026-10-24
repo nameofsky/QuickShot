@@ -156,6 +156,12 @@ public class MainWindow : Window, IComponentConnector, IStyleConnector
 
 	private System.Windows.Controls.CheckBox? _gifRecordingBox;
 
+	private System.Windows.Controls.CheckBox? _gifHotkeyStopBox;
+
+	private System.Windows.Controls.TextBox? _gifStopShortcutBox;
+
+	private TextBlock? _gifStopShortcutHint;
+
 	private Slider? _gifFramerateSlider;
 
 	private TextBlock? _gifFramerateValueText;
@@ -762,9 +768,58 @@ public class MainWindow : Window, IComponentConnector, IStyleConnector
 		fpsText.Children.Add(fpsDescription);
 		Grid fpsRow = CreateSettingRow(anchor, fpsText, sliderPanel);
 
+		_gifHotkeyStopBox = new System.Windows.Controls.CheckBox
+		{
+			Content = "热键停止",
+			IsChecked = _settings.GifHotkeyStopEnabled,
+			Style = DateFolderBox.Style,
+			HorizontalAlignment = System.Windows.HorizontalAlignment.Right,
+			VerticalAlignment = VerticalAlignment.Center,
+			IsEnabled = _settings.GifRecordingEnabled
+		};
+		_gifHotkeyStopBox.Click += GifHotkeyStopSettingChanged;
+
+		TextBlock hotkeyTitle = new TextBlock { Text = "GIF 热键停止录制", FontWeight = FontWeights.SemiBold };
+		hotkeyTitle.SetResourceReference(TextBlock.ForegroundProperty, "TextBrush");
+		TextBlock hotkeyDescription = new TextBlock { Text = "开启后录制中点击不再结束，用下方热键停止录制", Margin = new Thickness(0, 4, 0, 0) };
+		hotkeyDescription.SetResourceReference(TextBlock.ForegroundProperty, "MutedBrush");
+		StackPanel hotkeyText = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
+		hotkeyText.Children.Add(hotkeyTitle);
+		hotkeyText.Children.Add(hotkeyDescription);
+		Grid hotkeyRow = CreateSettingRow(anchor, hotkeyText, _gifHotkeyStopBox);
+
+		_gifStopShortcutBox = new System.Windows.Controls.TextBox
+		{
+			Text = _settings.GifStopShortcut,
+			Style = ShortcutBox.Style,
+			Width = ((!double.IsNaN(ShortcutBox.Width)) ? ShortcutBox.Width : 240.0),
+			Height = ((!double.IsNaN(ShortcutBox.Height)) ? ShortcutBox.Height : 54.0),
+			Margin = ShortcutBox.Margin,
+			VerticalAlignment = ShortcutBox.VerticalAlignment,
+			VerticalContentAlignment = ShortcutBox.VerticalContentAlignment,
+			ToolTip = "按下 Ctrl、Shift 或 Alt 加任意按键以设置；按 Delete 恢复默认（Ctrl + Shift + G）",
+			IsEnabled = _settings.GifRecordingEnabled && _settings.GifHotkeyStopEnabled
+		};
+		_gifStopShortcutBox.PreviewKeyDown += GifStopShortcutKeyDown;
+		_gifStopShortcutHint = new TextBlock
+		{
+			Text = "按下组合键以设置 GIF 停止热键",
+			Style = ShortcutHint.Style,
+			Margin = ShortcutHint.Margin
+		};
+		_gifStopShortcutHint.SetResourceReference(TextBlock.ForegroundProperty, "MutedBrush");
+		StackPanel stopShortcutText = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
+		TextBlock stopShortcutTitle = new TextBlock { Text = "GIF 停止热键", FontWeight = FontWeights.SemiBold };
+		stopShortcutTitle.SetResourceReference(TextBlock.ForegroundProperty, "TextBrush");
+		stopShortcutText.Children.Add(stopShortcutTitle);
+		stopShortcutText.Children.Add(_gifStopShortcutHint);
+		Grid stopShortcutRow = CreateSettingRow(anchor, stopShortcutText, _gifStopShortcutBox);
+
 		int index = panel.Children.IndexOf(anchor);
 		panel.Children.Insert(index + 1, toggleRow);
-		panel.Children.Insert(index + 2, fpsRow);
+		panel.Children.Insert(index + 2, hotkeyRow);
+		panel.Children.Insert(index + 3, stopShortcutRow);
+		panel.Children.Insert(index + 4, fpsRow);
 		_gifSettingsAdded = true;
 	}
 
@@ -802,7 +857,95 @@ public class MainWindow : Window, IComponentConnector, IStyleConnector
 		{
 			_gifFramerateSlider.IsEnabled = _settings.GifRecordingEnabled;
 		}
+		if (_gifHotkeyStopBox != null)
+		{
+			_gifHotkeyStopBox.IsEnabled = _settings.GifRecordingEnabled;
+		}
+		if (_gifStopShortcutBox != null)
+		{
+			_gifStopShortcutBox.IsEnabled = _settings.GifRecordingEnabled && _settings.GifHotkeyStopEnabled;
+		}
 		SettingsStore.Save(_settings);
+	}
+
+	private void GifHotkeyStopSettingChanged(object? sender, RoutedEventArgs e)
+	{
+		if (!base.IsLoaded || _gifHotkeyStopBox == null)
+		{
+			return;
+		}
+		_settings.GifHotkeyStopEnabled = _gifHotkeyStopBox.IsChecked == true;
+		if (_gifStopShortcutBox != null)
+		{
+			_gifStopShortcutBox.IsEnabled = _settings.GifRecordingEnabled && _settings.GifHotkeyStopEnabled;
+		}
+		SettingsStore.Save(_settings);
+	}
+
+	private void GifStopShortcutKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+	{
+		if (_gifStopShortcutBox == null)
+		{
+			return;
+		}
+		Key key = ((e.Key == Key.System) ? e.SystemKey : e.Key);
+		switch (key)
+		{
+		case Key.Back:
+		case Key.Delete:
+			_settings.GifStopShortcut = "Ctrl + Shift + G";
+			_gifStopShortcutBox.Text = _settings.GifStopShortcut;
+			_gifStopShortcutHint?.SetResourceReference(TextBlock.ForegroundProperty, "MutedBrush");
+			if (_gifStopShortcutHint != null)
+			{
+				_gifStopShortcutHint.Text = "已恢复默认热键";
+			}
+			SettingsStore.Save(_settings);
+			e.Handled = true;
+			return;
+		case Key.LeftShift:
+		case Key.RightShift:
+		case Key.LeftCtrl:
+		case Key.RightCtrl:
+		case Key.LeftAlt:
+		case Key.RightAlt:
+			e.Handled = true;
+			return;
+		}
+		List<string> list = new List<string>();
+		if ((Keyboard.Modifiers & ModifierKeys.Control) != ModifierKeys.None)
+		{
+			list.Add("Ctrl");
+		}
+		if ((Keyboard.Modifiers & ModifierKeys.Shift) != ModifierKeys.None)
+		{
+			list.Add("Shift");
+		}
+		if ((Keyboard.Modifiers & ModifierKeys.Alt) != ModifierKeys.None)
+		{
+			list.Add("Alt");
+		}
+		if (list.Count == 0)
+		{
+			_gifStopShortcutHint?.SetResourceReference(TextBlock.ForegroundProperty, "MutedBrush");
+			if (_gifStopShortcutHint != null)
+			{
+				_gifStopShortcutHint.Text = "快捷键至少需要 Ctrl、Shift 或 Alt（Tab 不能作为修饰键）";
+			}
+		}
+		else
+		{
+			list.Add(key.ToString());
+			string combo = string.Join(" + ", list);
+			_settings.GifStopShortcut = combo;
+			_gifStopShortcutBox.Text = combo;
+			if (_gifStopShortcutHint != null)
+			{
+				_gifStopShortcutHint.Text = $"已设置为 {combo}";
+			}
+			SettingsStore.Save(_settings);
+		}
+		e.Handled = true;
 	}
 
 	private void GifFramerateChanged(object? sender, RoutedPropertyChangedEventArgs<double> e)
@@ -977,7 +1120,7 @@ public class MainWindow : Window, IComponentConnector, IStyleConnector
 		return NativeWindow.RegisterHotKey(handle, id, modifiers, vk);
 	}
 
-	private static (uint Modifiers, uint Key) ParseShortcut(string shortcut)
+	internal static (uint Modifiers, uint Key) ParseShortcut(string shortcut)
 	{
 		uint num = 0u;
 		uint item = 65u;
