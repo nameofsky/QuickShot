@@ -113,7 +113,7 @@ public class App : Application
 			{
 			}
 
-			MessageBox.Show($"QuickShot 启动失败。\n\n错误日志：{logPath}", "QuickShot", MessageBoxButton.OK, MessageBoxImage.Error);
+			MessageBox.Show(Localization.Text($"QuickShot 启动失败。\n\n错误日志：{logPath}"), "QuickShot", MessageBoxButton.OK, MessageBoxImage.Error);
 		}
 	}
 }
