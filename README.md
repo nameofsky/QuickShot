@@ -4,8 +4,15 @@
 
 ## 效果演示
 
-<!-- TODO: 在此补充 3~5 张截图：主界面 / 框选截图 / OCR 识别结果 / GIF 录制效果，建议再放一张演示 GIF -->
-（截图待补充）
+| 主界面 | 框选截图 |
+|:---:|:---:|
+| ![主界面](docs/main-window.png) | ![框选截图](docs/region-capture.png) |
+
+| 离线 OCR | 视频录制 |
+|:---:|:---:|
+| ![OCR 识别完成提示](docs/ocr-result.png) | ![录制视频页面](docs/video-recording.png) |
+
+OCR 提示条示例：PaddleOCR 中文 V5 模型本地推理，2.3 秒识别 150 个字符，结果自动复制到剪贴板。
 
 ## 功能特性
 
