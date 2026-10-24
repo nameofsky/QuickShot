@@ -192,7 +192,7 @@ public class CaptureOverlay : Window, IComponentConnector
             (uint modifiers, uint vk) = MainWindow.ParseShortcut(_settings.GifStopShortcut);
             if (string.IsNullOrWhiteSpace(_settings.GifStopShortcut) || !NativeWindow.RegisterHotKey(handle, 9004, modifiers, vk))
             {
-                System.Windows.MessageBox.Show($"停止热键「{_settings.GifStopShortcut}」注册失败（可能被其他软件占用，或笔记本 F 键默认为媒体键），本次录制仍为点击屏幕结束。", "QuickShot", MessageBoxButton.OK, MessageBoxImage.Warning);
+                System.Windows.MessageBox.Show(Localization.Text($"停止热键「{_settings.GifStopShortcut}」注册失败（可能被其他软件占用，或笔记本 F 键默认为媒体键），本次录制仍为点击屏幕结束。"), "QuickShot", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
             }
 
