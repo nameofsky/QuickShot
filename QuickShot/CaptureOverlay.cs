@@ -25,6 +25,7 @@ public class CaptureOverlay : Window, IComponentConnector
     private nint _currentWindow;
     private System.Windows.Point? _dragStart;
     private bool _gifRecording;
+    private bool _stopHotkeyRegistered;
     private int _gifX;
     private int _gifY;
     private int _gifWidth;
@@ -65,6 +66,7 @@ public class CaptureOverlay : Window, IComponentConnector
         {
             _tracker.Stop();
             _gifTimer.Stop();
+            UnregisterStopHotkey();
             DisposeGifFrames();
         };
     }
@@ -170,10 +172,68 @@ public class CaptureOverlay : Window, IComponentConnector
         _tracker.Stop();
         _gifTimer.Interval = TimeSpan.FromSeconds(1.0 / Math.Clamp(_settings.GifFramerate, 1, 25));
         _gifTimer.Tick += delegate { CaptureGifFrame(); };
-        Opacity = 0.01;
+        if (_settings.GifHotkeyStopEnabled && TryRegisterStopHotkey())
+        {
+            Hide();
+        }
+        else
+        {
+            Opacity = 0.01;
+        }
         CaptureGifFrame();
         _gifTimer.Start();
 }
+
+    private bool TryRegisterStopHotkey()
+    {
+        try
+        {
+            nint handle = new WindowInteropHelper(this).Handle;
+            (uint modifiers, uint vk) = MainWindow.ParseShortcut(_settings.GifStopShortcut);
+            if (string.IsNullOrWhiteSpace(_settings.GifStopShortcut) || !NativeWindow.RegisterHotKey(handle, 9004, modifiers, vk))
+            {
+                System.Windows.MessageBox.Show($"停止热键「{_settings.GifStopShortcut}」注册失败（可能被其他软件占用，或笔记本 F 键默认为媒体键），本次录制仍为点击屏幕结束。", "QuickShot", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
+            HwndSource.FromHwnd(handle)?.AddHook(StopHotkeyWndProc);
+            _stopHotkeyRegistered = true;
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private void UnregisterStopHotkey()
+    {
+        if (!_stopHotkeyRegistered)
+        {
+            return;
+        }
+
+        _stopHotkeyRegistered = false;
+        try
+        {
+            nint handle = new WindowInteropHelper(this).Handle;
+            NativeWindow.UnregisterHotKey(handle, 9004);
+            HwndSource.FromHwnd(handle)?.RemoveHook(StopHotkeyWndProc);
+        }
+        catch
+        {
+        }
+    }
+
+    private nint StopHotkeyWndProc(nint hwnd, int msg, nint wParam, nint lParam, ref bool handled)
+    {
+        if (msg == NativeWindow.WM_HOTKEY && wParam.ToInt32() == 9004)
+        {
+            handled = true;
+            FinishGifRecording();
+        }
+        return IntPtr.Zero;
+    }
     private void CaptureGifFrame()
     {
         try
@@ -192,6 +252,7 @@ public class CaptureOverlay : Window, IComponentConnector
     {
         _gifTimer.Stop();
         _gifRecording = false;
+        UnregisterStopHotkey();
         Hide();
         Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(delegate
         {
