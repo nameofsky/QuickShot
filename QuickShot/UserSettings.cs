@@ -17,6 +17,10 @@ public sealed class UserSettings
 
 	public int GifFramerate { get; set; } = 10;
 
+	public bool GifHotkeyStopEnabled { get; set; }
+
+	public string GifStopShortcut { get; set; } = "Ctrl + Shift + G";
+
 	public string BackgroundPath { get; set; } = "";
 
 	public int BackgroundBlurPercent { get; set; } = 25;
